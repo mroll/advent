@@ -1,3 +1,5 @@
+source utils.tcl
+
 proc getoperand { x } {
     if { [string is integer $x] } {
         set command $x
@@ -51,22 +53,20 @@ proc transform { expr } {
     set script
 }
 
-proc parse { fname } {
-    set data [fread $fname]
-
-    foreach item [lrange [split $data \n] 0 end-1] {
+proc parse { data } {
+    foreach item $data {
         set fields [split $item ->]
         
         set name [concat [lindex $fields 2]]
         set body {*}[subst { { memoize::memoize; [transform [lindex $fields 0]] } }]
 
         proc advent::$name { } $body
-        # puts "proc advent::$name { } { $body }"
     }
 }
 
 namespace eval advent { }
 set ops [dict create NOT ~ RSHIFT >> LSHIFT << AND & XOR ^ OR |]
 
-parse seven.data
+set data [getlines seven.data]
+parse $data
 puts [advent::a]
